@@ -2,7 +2,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { AppShell, Burger, Group, Text } from "@mantine/core";
 import { Navbar } from "./Navbar";
 
-export function DashboardLayout() {
+export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [opened, { toggle }] = useDisclosure();
 
   return (
@@ -22,7 +22,7 @@ export function DashboardLayout() {
       <AppShell.Navbar p="md">
         <Navbar />
       </AppShell.Navbar>
-      <AppShell.Main>Main</AppShell.Main>
+      <AppShell.Main>{children}</AppShell.Main>
     </AppShell>
   );
 }

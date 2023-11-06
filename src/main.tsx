@@ -4,7 +4,7 @@ import App from "./App.tsx";
 import "./index.css";
 import { BrowserRouter } from "react-router-dom";
 import { MantineProvider, createTheme } from "@mantine/core";
-
+import "@mantine/dates/styles.css";
 const theme = createTheme({
   shadows: {
     md: "1px 1px 3px rgba(0, 0, 0, .25)",

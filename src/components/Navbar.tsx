@@ -5,14 +5,16 @@ import {
   IconReceipt,
 } from "@tabler/icons-react";
 import classes from "./Navbar.module.css";
+import { useNavigate } from "react-router-dom";
 
 const data = [
-  { link: "", label: "Dashboard", icon: IconLayoutDashboard },
-  { link: "", label: "Appointments", icon: IconReceipt },
+  { link: "/", label: "dashboard", icon: IconLayoutDashboard },
+  { link: "/appointments", label: "appointments", icon: IconReceipt },
 ];
 
 export function Navbar() {
-  const [active, setActive] = useState("Billing");
+  const [active, setActive] = useState("dashboard");
+  const navigate = useNavigate();
 
   const links = data.map((item) => (
     <a
@@ -23,6 +25,7 @@ export function Navbar() {
       onClick={(event) => {
         event.preventDefault();
         setActive(item.label);
+        navigate(item.link);
       }}
     >
       <item.icon className={classes.linkIcon} stroke={1.5} />

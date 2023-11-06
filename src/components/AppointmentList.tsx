@@ -7,8 +7,13 @@ import {
   ActionIcon,
   Anchor,
   rem,
+  Button,
+  Flex,
+  TextInput,
 } from "@mantine/core";
+import { DateInput } from "@mantine/dates";
 import { IconPencil, IconTrash } from "@tabler/icons-react";
+import { useState } from "react";
 
 const data = [
   {
@@ -60,6 +65,7 @@ const jobColors: Record<string, string> = {
 };
 
 export function AppointmentList() {
+  const [date, setDate] = useState<Date | null>(null);
   const rows = data.map((item) => (
     <Table.Tr key={item.name}>
       <Table.Td>
@@ -104,19 +110,32 @@ export function AppointmentList() {
   ));
 
   return (
-    <Table.ScrollContainer minWidth={800}>
-      <Table verticalSpacing="sm">
-        <Table.Thead>
-          <Table.Tr>
-            <Table.Th>Employee</Table.Th>
-            <Table.Th>Job title</Table.Th>
-            <Table.Th>Email</Table.Th>
-            <Table.Th>Phone</Table.Th>
-            <Table.Th />
-          </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>{rows}</Table.Tbody>
-      </Table>
-    </Table.ScrollContainer>
+    <div>
+      <Flex justify="space-between" align="flex-end" mb={60} mt={48}>
+        {" "}
+        <DateInput
+          value={date}
+          onChange={setDate}
+          label="Filter by date"
+          placeholder="Enter date"
+        />
+        <TextInput label="Filter by Appointment ID" placeholder="Search" />
+        <Button>Make Appointment</Button>
+      </Flex>
+      <Table.ScrollContainer minWidth={800}>
+        <Table verticalSpacing="sm">
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>Employee</Table.Th>
+              <Table.Th>Job title</Table.Th>
+              <Table.Th>Email</Table.Th>
+              <Table.Th>Phone</Table.Th>
+              <Table.Th />
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>{rows}</Table.Tbody>
+        </Table>
+      </Table.ScrollContainer>
+    </div>
   );
 }

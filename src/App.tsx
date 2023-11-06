@@ -1,6 +1,7 @@
 import "@mantine/core/styles.css";
 import "./App.css";
-import { MantineProvider, Button, createTheme } from "@mantine/core";
+import { MantineProvider, createTheme } from "@mantine/core";
+import { Login } from "./views/Login";
 
 function App() {
   const theme = createTheme({
@@ -11,8 +12,7 @@ function App() {
   });
   return (
     <MantineProvider theme={theme}>
-      <h1>Hello World!</h1>
-      <Button>Hello</Button>
+      <Login />
     </MantineProvider>
   );
 }

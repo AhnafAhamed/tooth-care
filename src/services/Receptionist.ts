@@ -1,30 +1,19 @@
 import { Employee } from "./Employee";
 
 export class Receptionist extends Employee {
-  private receptionistId: number;
   private password: string;
   private isAuthenticated: boolean = false;
+
   constructor(
     id: number,
     name: string,
     age: number,
     address: string,
     phone: number,
-    nic: string,
-    employeeId: number,
-    receptionistId: number
+    nic: string
   ) {
-    super(id, name, age, address, phone, nic, employeeId);
-    this.receptionistId = receptionistId;
+    super(id, name, age, address, phone, nic);
     this.password = "";
-  }
-
-  setReceptionistId(receptionistId: number): void {
-    this.receptionistId = receptionistId;
-  }
-
-  getReceptionistId(): number {
-    return this.receptionistId;
   }
 
   setPassword(password: string): void {
@@ -41,5 +30,13 @@ export class Receptionist extends Employee {
 
   getIsAuthenticated(): boolean {
     return this.isAuthenticated;
+  }
+
+  authenticate(password: string): boolean {
+    if (this.password === password) {
+      this.isAuthenticated = true;
+      return true;
+    }
+    return false;
   }
 }

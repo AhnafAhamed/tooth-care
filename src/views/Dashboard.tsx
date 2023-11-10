@@ -1,21 +1,21 @@
 import { useEffect } from "react";
 import { AppointmentList } from "../components/AppointmentList";
 import { DashboardLayout } from "../components/DashboardLayout";
-import { Receptionist } from "../services/Receptionist";
 import { useNavigate } from "react-router-dom";
+import { Receptionist } from "../services/Receptionist";
 
 type DashboardProps = {
-  receptionist: Receptionist;
+  receptionist: Receptionist | undefined;
 };
 
 export function Dashboard({ receptionist }: DashboardProps) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!receptionist.getIsAuthenticated()) {
-      navigate("/login");
+    if (!receptionist) {
+      navigate("/auth");
     }
-  });
+  }, []);
 
   return (
     <DashboardLayout>

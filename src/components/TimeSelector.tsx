@@ -10,6 +10,10 @@ type defaultScheduleItem = {
   isSelected: boolean;
 };
 
+type TimeSelectorProps = {
+  getSelectedDays: (selectedDays: ISchedule[]) => void;
+};
+
 const defaultSchedule: defaultScheduleItem[] = [
   {
     day: "Monday",
@@ -55,16 +59,11 @@ const defaultSchedule: defaultScheduleItem[] = [
   },
 ];
 
-type TimeSelectorProps = {
-  getSelectedDays: (selectedDays: ISchedule[]) => void;
-};
-
 const TimeSelector = ({ getSelectedDays }: TimeSelectorProps) => {
   const [selectedDays, setSelectedDays] =
     useState<defaultScheduleItem[]>(defaultSchedule);
 
   const handleDayChange = (e: ChangeEvent<HTMLInputElement>, index: number) => {
-    console.log({ e });
     const position = index;
     setSelectedDays((prev) => {
       return prev.map((item, index) => {
@@ -83,7 +82,6 @@ const TimeSelector = ({ getSelectedDays }: TimeSelectorProps) => {
     e: ChangeEvent<HTMLInputElement>,
     index: number
   ) => {
-    console.log({ e, index });
     const position = index;
     setSelectedDays((prev) => {
       return prev.map((item, index) => {

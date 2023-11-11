@@ -1,8 +1,8 @@
 import { Employee } from "./Employee";
 
 export class Receptionist extends Employee {
-  private password: string;
-  private isAuthenticated: boolean = false;
+  private _password: string;
+  private _isAuthenticated: boolean = false;
 
   constructor(
     id: number,
@@ -13,28 +13,28 @@ export class Receptionist extends Employee {
     nic: string
   ) {
     super(id, name, age, address, phone, nic);
-    this.password = "";
+    this._password = "";
   }
 
   setPassword(password: string): void {
-    this.password = password;
+    this._password = password;
   }
 
   getPassword(): string {
-    return this.password;
+    return this._password;
   }
 
   setIsAuthenticated(isAuthenticated: boolean): void {
-    this.isAuthenticated = isAuthenticated;
+    this._isAuthenticated = isAuthenticated;
   }
 
   getIsAuthenticated(): boolean {
-    return this.isAuthenticated;
+    return this._isAuthenticated;
   }
 
   authenticate(password: string): boolean {
-    if (this.password === password) {
-      this.isAuthenticated = true;
+    if (this._password === password) {
+      this._isAuthenticated = true;
       return true;
     }
     return false;

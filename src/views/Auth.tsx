@@ -12,7 +12,7 @@ import {
 import classes from "./Login.module.css";
 import { Receptionist } from "../services/Receptionist";
 import { useForm } from "@mantine/form";
-import { FormEvent } from "react";
+import { FormEvent, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";
 import { ReceptionistManager } from "../services/ReceptionistManager";
@@ -91,6 +91,19 @@ export function Auth({ getReceptionist }: AuthProps) {
     registerForm.reset();
     console.log(receptionistManager);
   };
+
+  useEffect(() => {
+    const defaultReceptionist = new Receptionist(
+      334,
+      "Admin",
+      30,
+      "123 Main St",
+      1234567890,
+      "1234567890123"
+    );
+    defaultReceptionist.setPassword("admin");
+    receptionistManager.registerReceptionist(defaultReceptionist);
+  }, []);
 
   return (
     <>

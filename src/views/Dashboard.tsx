@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, FormEvent } from "react";
 import { AppointmentList } from "../components/AppointmentList";
 import { DashboardLayout } from "../components/DashboardLayout";
 import { useNavigate } from "react-router-dom";
@@ -16,6 +16,7 @@ import { useDisclosure } from "@mantine/hooks";
 import TimeSelector from "../components/TimeSelector";
 import { Dentist, ISchedule } from "../services/Dentist";
 import { DentistManager } from "../services/DentistManager";
+import { useState } from "react";
 
 type DashboardProps = {
   receptionist: Receptionist | undefined;
@@ -27,6 +28,7 @@ export function Dashboard({ receptionist }: DashboardProps) {
   const navigate = useNavigate();
 
   const [opened, { open, close }] = useDisclosure(false);
+  const [dentistList, setDentistList] = useState<Dentist[]>([]);
 
   const dentistForm = useForm({
     initialValues: {
@@ -41,9 +43,11 @@ export function Dashboard({ receptionist }: DashboardProps) {
     },
   });
 
-  const handleDentistRegistration = () => {
+  const handleDentistRegistration = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     dentistForm.validate();
     if (!dentistForm.isValid()) return;
+
     const newDentist = new Dentist(
       parseInt(dentistForm.values.dentistId),
       dentistForm.values.name,
@@ -55,7 +59,14 @@ export function Dashboard({ receptionist }: DashboardProps) {
     newDentist.setSchedules(dentistForm.values.schedules);
     newDentist.setSlmcId(dentistForm.values.slmcId);
     dentistManager.registerDentist(newDentist);
+    setDentistList(dentistManager.getAllDentists());
+    close();
+    dentistForm.reset();
   };
+
+  useEffect(() => {
+    console.log(dentistList);
+  }, [dentistList]);
 
   const handleSelectedDays = (selectedDays: ISchedule[]) => {
     dentistForm.setValues({
@@ -63,10 +74,6 @@ export function Dashboard({ receptionist }: DashboardProps) {
       schedules: selectedDays,
     });
   };
-
-  useEffect(() => {
-    console.log(dentistForm.values);
-  }, [dentistForm.values]);
 
   useEffect(() => {
     if (!receptionist) {
@@ -82,7 +89,7 @@ export function Dashboard({ receptionist }: DashboardProps) {
         </Button>
       </Flex>
 
-      <AppointmentList></AppointmentList>
+      <AppointmentList dentists={dentistList}></AppointmentList>
       <Modal
         opened={opened}
         onClose={close}

@@ -1,113 +1,133 @@
 import {
-  Avatar,
   Badge,
   Table,
   Group,
   Text,
   ActionIcon,
-  Anchor,
   rem,
   Button,
   Flex,
   TextInput,
+  Modal,
+  NativeSelect,
+  SimpleGrid,
+  Switch,
 } from "@mantine/core";
-import { DateInput } from "@mantine/dates";
+import { DateInput, DateTimePicker } from "@mantine/dates";
 import { IconPencil, IconTrash } from "@tabler/icons-react";
-import { useState } from "react";
+import { useState, useEffect, FormEvent } from "react";
+import { useDisclosure } from "@mantine/hooks";
+import { Dentist } from "../services/Dentist";
+import { useForm } from "@mantine/form";
+import { Patient } from "../services/Patient";
+import { Appointment } from "../services/Appointment";
+import { AppointmentManager } from "../services/AppointmentManager";
 
-const data = [
-  {
-    avatar:
-      "https://images.unsplash.com/photo-1624298357597-fd92dfbec01d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=250&q=80",
-    name: "Robert Wolfkisser",
-    job: "Engineer",
-    email: "rob_wolf@gmail.com",
-    phone: "+44 (452) 886 09 12",
-  },
-  {
-    avatar:
-      "https://images.unsplash.com/photo-1586297135537-94bc9ba060aa?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=250&q=80",
-    name: "Jill Jailbreaker",
-    job: "Engineer",
-    email: "jj@breaker.com",
-    phone: "+44 (934) 777 12 76",
-  },
-  {
-    avatar:
-      "https://images.unsplash.com/photo-1632922267756-9b71242b1592?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=250&q=80",
-    name: "Henry Silkeater",
-    job: "Designer",
-    email: "henry@silkeater.io",
-    phone: "+44 (901) 384 88 34",
-  },
-  {
-    avatar:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=250&q=80",
-    name: "Bill Horsefighter",
-    job: "Designer",
-    email: "bhorsefighter@gmail.com",
-    phone: "+44 (667) 341 45 22",
-  },
-  {
-    avatar:
-      "https://images.unsplash.com/photo-1630841539293-bd20634c5d72?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=250&q=80",
-    name: "Jeremy Footviewer",
-    job: "Manager",
-    email: "jeremy@foot.dev",
-    phone: "+44 (881) 245 65 65",
-  },
-];
-
-const jobColors: Record<string, string> = {
-  engineer: "blue",
-  manager: "cyan",
-  designer: "pink",
+type AppointmentListProps = {
+  dentists: Dentist[];
 };
 
-export function AppointmentList() {
-  const [date, setDate] = useState<Date | null>(null);
-  const rows = data.map((item) => (
-    <Table.Tr key={item.name}>
-      <Table.Td>
-        <Group gap="sm">
-          <Avatar size={30} src={item.avatar} radius={30} />
-          <Text fz="sm" fw={500}>
-            {item.name}
-          </Text>
-        </Group>
-      </Table.Td>
+const appointmentManager = new AppointmentManager();
 
-      <Table.Td>
-        <Badge color={jobColors[item.job.toLowerCase()]} variant="light">
-          {item.job}
-        </Badge>
-      </Table.Td>
-      <Table.Td>
-        <Anchor component="button" size="sm">
-          {item.email}
-        </Anchor>
-      </Table.Td>
-      <Table.Td>
-        <Text fz="sm">{item.phone}</Text>
-      </Table.Td>
-      <Table.Td>
-        <Group gap={0} justify="flex-end">
-          <ActionIcon variant="subtle" color="gray">
-            <IconPencil
-              style={{ width: rem(16), height: rem(16) }}
-              stroke={1.5}
-            />
-          </ActionIcon>
-          <ActionIcon variant="subtle" color="red">
-            <IconTrash
-              style={{ width: rem(16), height: rem(16) }}
-              stroke={1.5}
-            />
-          </ActionIcon>
-        </Group>
-      </Table.Td>
-    </Table.Tr>
-  ));
+export function AppointmentList({ dentists }: AppointmentListProps) {
+  const [date, setDate] = useState<Date | null>(null);
+  const [opened, { open, close }] = useDisclosure(false);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+
+  const rows =
+    appointments.length === 0 ? (
+      <Table.Tr>
+        <Table.Td colSpan={5}>
+          <Text ta="center">No appointments found</Text>
+        </Table.Td>
+      </Table.Tr>
+    ) : (
+      appointments.map((appointment) => (
+        <Table.Tr key={appointment.getId()}>
+          <Table.Td align="left">
+            <Group gap="sm">
+              <Text fz="sm" fw={500}>
+                {appointment.getId()}
+              </Text>
+            </Group>
+          </Table.Td>
+
+          <Table.Td align="left">
+            <Text fz="sm" fw={500}>
+              {appointment.getPatientName()}
+            </Text>
+          </Table.Td>
+          <Table.Td align="left">
+            <Badge color="cyan" variant="light">
+              {appointment.getDentistName()}
+            </Badge>
+          </Table.Td>
+          <Table.Td align="left">
+            <Text fz="sm">{appointment.getPatientPhone()}</Text>
+          </Table.Td>
+          <Table.Td>
+            <Group gap={0} justify="flex-end">
+              <ActionIcon variant="subtle" color="gray">
+                <IconPencil
+                  style={{ width: rem(16), height: rem(16) }}
+                  stroke={1.5}
+                />
+              </ActionIcon>
+              <ActionIcon variant="subtle" color="red">
+                <IconTrash
+                  style={{ width: rem(16), height: rem(16) }}
+                  stroke={1.5}
+                />
+              </ActionIcon>
+            </Group>
+          </Table.Td>
+        </Table.Tr>
+      ))
+    );
+
+  const appointmentForm = useForm({
+    initialValues: {
+      dentist: dentists[0],
+      patientName: "",
+      patientAge: "",
+      patientAddress: "",
+      patientPhone: "",
+      patientNIC: "",
+      patientRegistrationFee: false,
+      appointmentTime: "",
+    },
+  });
+
+  const addAppointment = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const patient = new Patient(
+      appointmentForm.values.patientName,
+      parseInt(appointmentForm.values.patientAge),
+      appointmentForm.values.patientAddress,
+      parseInt(appointmentForm.values.patientPhone),
+      appointmentForm.values.patientNIC
+    );
+
+    const appointment = new Appointment(
+      appointmentForm.values.appointmentTime,
+      patient,
+      appointmentForm.values.dentist
+    );
+    appointment.payRegistration();
+
+    appointmentManager.addAppointment(appointment);
+
+    setAppointments(appointmentManager.getAllAppointments());
+
+    console.log(appointmentManager.getAllAppointments());
+  };
+
+  useEffect(() => {
+    appointmentForm.setValues({
+      ...appointmentForm.values,
+      dentist: dentists[0],
+    });
+  }, [dentists]);
 
   return (
     <div>
@@ -120,22 +140,129 @@ export function AppointmentList() {
           placeholder="Enter date"
         />
         <TextInput label="Filter by Appointment ID" placeholder="Search" />
-        <Button>Make Appointment</Button>
+        <Button onClick={open}>Make Appointment</Button>
       </Flex>
       <Table.ScrollContainer minWidth={800}>
-        <Table verticalSpacing="sm">
+        <Table verticalSpacing="sm" striped>
           <Table.Thead>
             <Table.Tr>
-              <Table.Th>Employee</Table.Th>
-              <Table.Th>Job title</Table.Th>
-              <Table.Th>Email</Table.Th>
-              <Table.Th>Phone</Table.Th>
+              <Table.Th>Appointment ID</Table.Th>
+              <Table.Th>Patient</Table.Th>
+              <Table.Th>Doctor</Table.Th>
+              <Table.Th>Patient Phone</Table.Th>
               <Table.Th />
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>{rows}</Table.Tbody>
         </Table>
       </Table.ScrollContainer>
+      <Modal
+        opened={opened}
+        onClose={close}
+        title="Make Appointment"
+        centered
+        size="xl"
+      >
+        {appointmentForm.values.dentist ? (
+          <form onSubmit={addAppointment}>
+            <NativeSelect
+              label="Select Dentist"
+              onChange={(event) => {
+                dentists.find((dentist) => {
+                  if (dentist.name === event.currentTarget.value) {
+                    appointmentForm.setValues({
+                      ...appointmentForm.values,
+                      dentist: dentist,
+                    });
+                  }
+                });
+              }}
+              data={dentists.map((dentist) => ({
+                value: dentist.name,
+                label: dentist.name,
+              }))}
+            />
+            <Text mt={16} fw={500} size="sm">
+              Availability
+            </Text>
+            <SimpleGrid cols={4}>
+              {appointmentForm.values?.dentist
+                ?.getSchedules()
+                .map((schedule) => {
+                  return (
+                    <Button
+                      key={schedule.day}
+                      variant="light"
+                      color="blue"
+                      fullWidth
+                      mt="md"
+                      radius="md"
+                    >
+                      {schedule.day} <br />
+                      {schedule.startTime} - {schedule.endTime}
+                    </Button>
+                  );
+                })}
+            </SimpleGrid>
+            <DateTimePicker
+              mt={16}
+              label="Pick date and time"
+              placeholder="Pick date and time"
+              {...appointmentForm.getInputProps("appointmentTime")}
+            />
+            <TextInput
+              mt={16}
+              label="Patient Name"
+              placeholder="Enter Patient Name"
+              {...appointmentForm.getInputProps("patientName")}
+              required
+            />
+            <TextInput
+              mt={16}
+              type="number"
+              label="Patient Age"
+              placeholder="Enter Patient Age"
+              {...appointmentForm.getInputProps("patientAge")}
+              required
+            />
+            <TextInput
+              mt={16}
+              label="Patient Address"
+              placeholder="Enter Patient Address"
+              {...appointmentForm.getInputProps("patientAddress")}
+              required
+            />
+            <TextInput
+              mt={16}
+              label="Patient Phone"
+              type="number"
+              placeholder="Enter Patient Phone"
+              {...appointmentForm.getInputProps("patientPhone")}
+              required
+            />
+            <TextInput
+              mt={16}
+              label="Patient NIC"
+              placeholder="Enter Patient NIC"
+              {...appointmentForm.getInputProps("patientNIC")}
+              required
+            />
+            <Switch
+              mt={16}
+              required
+              {...appointmentForm.getInputProps("patientRegistrationFee")}
+              label="Regestration Fee of 1000/= received"
+            />
+            <Button fullWidth mt="xl" type="submit">
+              Make Appointment
+            </Button>
+          </form>
+        ) : (
+          <Text ta="center" size="md" c="red">
+            Please add atleast 1 dentist inorder to make an appointment
+          </Text>
+        )}
+      </Modal>
     </div>
   );
 }

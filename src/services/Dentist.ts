@@ -35,4 +35,9 @@ export class Dentist extends Person {
   getSlmcId(): string {
     return this._slmcId;
   }
+
+  reset(): void {
+    this._schedules = [];
+    this._slmcId = "";
+  }
 }

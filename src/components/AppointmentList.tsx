@@ -13,9 +13,9 @@ import {
   SimpleGrid,
   Switch,
 } from "@mantine/core";
-import { DateInput, DateTimePicker } from "@mantine/dates";
+import { DateInput, DateTimePicker, DateValue } from "@mantine/dates";
 import { IconPencil, IconTrash } from "@tabler/icons-react";
-import { useState, useEffect, FormEvent } from "react";
+import { useState, useEffect, FormEvent, ChangeEvent } from "react";
 import { useDisclosure } from "@mantine/hooks";
 import { Dentist } from "../services/Dentist";
 import { useForm } from "@mantine/form";
@@ -30,7 +30,6 @@ type AppointmentListProps = {
 const appointmentManager = new AppointmentManager();
 
 export function AppointmentList({ dentists }: AppointmentListProps) {
-  const [date, setDate] = useState<Date | null>(null);
   const [opened, { open, close }] = useDisclosure(false);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
 
@@ -122,6 +121,37 @@ export function AppointmentList({ dentists }: AppointmentListProps) {
     console.log(appointmentManager.getAllAppointments());
   };
 
+  const handleFilterByAppointmentId = (e: ChangeEvent<HTMLInputElement>) => {
+    console.log(appointmentManager.getAllAppointments());
+    const appointmentId: number = parseInt(e.target.value);
+    const filteredAppointments = appointmentManager
+      .getAllAppointments()
+      .filter((appointment) => appointment.getId() === appointmentId);
+    if (filteredAppointments.length > 0) {
+      setAppointments(filteredAppointments);
+    } else {
+      setAppointments(appointmentManager.getAllAppointments());
+    }
+  };
+
+  const handleFilterByAppointmentDate = (value: DateValue) => {
+    if (value) {
+      const filteredAppointments = appointmentManager
+        .getAllAppointments()
+        .filter((appointment) => {
+          const appointmentDate = new Date(appointment.time);
+          return (
+            appointmentDate.getFullYear() === value.getFullYear() &&
+            appointmentDate.getMonth() === value.getMonth() &&
+            appointmentDate.getDate() === value.getDate()
+          );
+        });
+      setAppointments(filteredAppointments);
+    } else {
+      setAppointments(appointmentManager.getAllAppointments());
+    }
+  };
+
   useEffect(() => {
     appointmentForm.setValues({
       ...appointmentForm.values,
@@ -134,12 +164,18 @@ export function AppointmentList({ dentists }: AppointmentListProps) {
       <Flex justify="space-between" align="flex-end" mb={60} mt={48}>
         {" "}
         <DateInput
-          value={date}
-          onChange={setDate}
+          onChange={handleFilterByAppointmentDate}
           label="Filter by date"
           placeholder="Enter date"
+          defaultValue={new Date()}
+          clearable
         />
-        <TextInput label="Filter by Appointment ID" placeholder="Search" />
+        <TextInput
+          label="Filter by Appointment ID"
+          type="number"
+          placeholder="Search"
+          onChange={handleFilterByAppointmentId}
+        />
         <Button onClick={open}>Make Appointment</Button>
       </Flex>
       <Table.ScrollContainer minWidth={800}>

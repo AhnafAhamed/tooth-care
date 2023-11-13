@@ -1,14 +1,16 @@
 import { Dentist } from "./Dentist";
 import { Patient } from "./Patient";
+import { Treatment } from "./Treatment";
 
 export class Appointment {
   private static lastId = 0;
   private id: number;
+  private treatment: Treatment | null = null;
+  private isRegistrationPaid: boolean = false;
+  private isTreatmentPaid: boolean = false;
   time: string;
   patient: Patient;
   dentist: Dentist;
-  private isRegistrationPaid: boolean = false;
-  private isTreatmentPaid: boolean = false;
 
   constructor(time: string, patient: Patient, dentist: Dentist) {
     this.id = Appointment.lastId++;
@@ -47,5 +49,13 @@ export class Appointment {
 
   public getPatientPhone(): number {
     return this.patient.phone;
+  }
+
+  public setTreatment(treatment: Treatment): void {
+    this.treatment = treatment;
+  }
+
+  public getTreatment(): Treatment | null {
+    return this.treatment;
   }
 }

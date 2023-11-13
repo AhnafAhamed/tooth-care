@@ -12,6 +12,9 @@ import {
   NativeSelect,
   SimpleGrid,
   Switch,
+  Title,
+  Center,
+  Stack,
 } from "@mantine/core";
 import { DateInput, DateTimePicker, DateValue } from "@mantine/dates";
 import { IconPencil, IconTrash } from "@tabler/icons-react";
@@ -32,7 +35,10 @@ const appointmentManager = new AppointmentManager();
 
 export function AppointmentList({ dentists }: AppointmentListProps) {
   const [opened, { open, close }] = useDisclosure(false);
+  const [invoiceModal, { open: openInvoiceModal, close: closeInvoiceModal }] =
+    useDisclosure(false);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment>();
 
   const rows =
     appointments.length === 0 ? (
@@ -58,18 +64,29 @@ export function AppointmentList({ dentists }: AppointmentListProps) {
             </Text>
           </Table.Td>
           <Table.Td align="left">
-            <Badge color="cyan" variant="light">
+            <Text fz="sm" fw={500}>
               {appointment.getDentistName()}
-            </Badge>
+            </Text>
           </Table.Td>
           <Table.Td align="left">
             <Text fz="sm">{appointment.getPatientPhone()}</Text>
           </Table.Td>
           <Table.Td>
             <Group gap={0} justify="flex-end">
-              <Badge color="green" variant="light">
-                Accept Payment
-              </Badge>
+              {appointment.getIsTreatmentPaid() ? (
+                <Badge color="green" variant="light">
+                  PAID
+                </Badge>
+              ) : (
+                <Badge
+                  color="cyan"
+                  variant="light"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleAppointmentPayment(appointment.getId())}
+                >
+                  Accept Payment
+                </Badge>
+              )}
               <ActionIcon variant="subtle" color="gray">
                 <IconPencil
                   style={{ width: rem(16), height: rem(16) }}
@@ -118,7 +135,7 @@ export function AppointmentList({ dentists }: AppointmentListProps) {
       appointmentForm.values.dentist
     );
     appointment.payRegistration();
-
+    appointment.setTreatment(appointmentForm.values.treatment);
     appointmentManager.addAppointment(appointment);
 
     setAppointments(appointmentManager.getAllAppointments());
@@ -155,6 +172,16 @@ export function AppointmentList({ dentists }: AppointmentListProps) {
     } else {
       setAppointments(appointmentManager.getAllAppointments());
     }
+  };
+
+  const handleAppointmentPayment = (appointmentId: number) => {
+    setSelectedAppointment(
+      appointmentManager.getAppointmentById(appointmentId)
+    );
+    openInvoiceModal();
+    console.log(appointmentId);
+    // appointmentManager.payAppointment(appointmentId);
+    // setAppointments(appointmentManager.getAllAppointments());
   };
 
   useEffect(() => {
@@ -323,6 +350,76 @@ export function AppointmentList({ dentists }: AppointmentListProps) {
             Please add atleast 1 dentist inorder to make an appointment
           </Text>
         )}
+      </Modal>
+      <Modal
+        opened={invoiceModal}
+        onClose={closeInvoiceModal}
+        title="Accept Payment"
+        centered
+        size="xl"
+      >
+        <Center>
+          {selectedAppointment && (
+            <Stack>
+              <Title>Invoice</Title>
+              <Table
+                verticalSpacing="sm"
+                striped
+                withTableBorder
+                withColumnBorders
+              >
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th>Appointment ID</Table.Th>
+                    <Table.Th>Patient</Table.Th>
+                    <Table.Th>Dentist</Table.Th>
+                    <Table.Th>Treatment</Table.Th>
+                    <Table.Th>Fee</Table.Th>
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>
+                  <Table.Tr>
+                    <Table.Td>{selectedAppointment?.getId()}</Table.Td>
+                    <Table.Td>{selectedAppointment?.getPatientName()}</Table.Td>
+                    <Table.Td>{selectedAppointment?.getDentistName()}</Table.Td>
+                    <Table.Td>
+                      {selectedAppointment?.getTreatment()?.name}
+                    </Table.Td>
+                    <Table.Td>
+                      {selectedAppointment?.getTreatment()?.cost}/=
+                    </Table.Td>
+                  </Table.Tr>
+                  <Table.Tr>
+                    <Table.Td colSpan={3}>
+                      <Text size="lg" fw={700}>
+                        Total
+                      </Text>
+                    </Table.Td>
+                    <Table.Td colSpan={2}>
+                      <Text size="xl" fw={700} ta="right">
+                        {selectedAppointment?.getTreatment()?.cost}/=
+                      </Text>
+                    </Table.Td>
+                  </Table.Tr>
+                </Table.Tbody>
+              </Table>
+              <Button
+                fullWidth
+                mt="xl"
+                color="green"
+                onClick={() => {
+                  appointmentManager.payAppointment(
+                    selectedAppointment.getId()
+                  );
+                  setAppointments(appointmentManager.getAllAppointments());
+                  closeInvoiceModal();
+                }}
+              >
+                Accept Payment
+              </Button>
+            </Stack>
+          )}
+        </Center>
       </Modal>
     </div>
   );

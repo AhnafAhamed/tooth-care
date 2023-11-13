@@ -1,16 +1,9 @@
-import { useState } from "react";
-import {
-  IconLogout,
-  IconLayoutDashboard,
-  IconReceipt,
-} from "@tabler/icons-react";
+import { useState, MouseEvent } from "react";
+import { IconLogout, IconLayoutDashboard } from "@tabler/icons-react";
 import classes from "./Navbar.module.css";
 import { useNavigate } from "react-router-dom";
 
-const data = [
-  { link: "/", label: "dashboard", icon: IconLayoutDashboard },
-  { link: "/appointments", label: "appointments", icon: IconReceipt },
-];
+const data = [{ link: "/", label: "dashboard", icon: IconLayoutDashboard }];
 
 export function Navbar() {
   const [active, setActive] = useState("dashboard");
@@ -33,16 +26,17 @@ export function Navbar() {
     </a>
   ));
 
+  const handleLogout = (e: MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    window.location.reload();
+  };
+
   return (
     <nav className={classes.navbar}>
       <div className={classes.navbarMain}>{links}</div>
 
       <div className={classes.footer}>
-        <a
-          href="#"
-          className={classes.link}
-          onClick={(event) => event.preventDefault()}
-        >
+        <a className={classes.link} onClick={handleLogout}>
           <IconLogout className={classes.linkIcon} stroke={1.5} />
           <span>Logout</span>
         </a>

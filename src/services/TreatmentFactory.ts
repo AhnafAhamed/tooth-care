@@ -4,38 +4,47 @@ abstract class TreatmentFactory {
   abstract createTreatment(cost: number, duration: number): Treatment;
 }
 
-export class CleaningsFactory extends TreatmentFactory {
+class CleaningsFactory extends TreatmentFactory {
   createTreatment(cost: number, duration: number): Treatment {
     return new Treatment(TreatmentType.Cleanings, cost, duration);
   }
 }
 
-export class WhiteningFactory extends TreatmentFactory {
+class WhiteningFactory extends TreatmentFactory {
   createTreatment(cost: number, duration: number): Treatment {
     return new Treatment(TreatmentType.Whitening, cost, duration);
   }
 }
 
-export class FillingFactory extends TreatmentFactory {
+class FillingFactory extends TreatmentFactory {
   createTreatment(cost: number, duration: number): Treatment {
     return new Treatment(TreatmentType.Filling, cost, duration);
   }
 }
 
-export class NerveFillingFactory extends TreatmentFactory {
+class NerveFillingFactory extends TreatmentFactory {
   createTreatment(cost: number, duration: number): Treatment {
     return new Treatment(TreatmentType.NerveFilling, cost, duration);
   }
 }
 
-export class RootCanalTherapyFactory extends TreatmentFactory {
+class RootCanalTherapyFactory extends TreatmentFactory {
   createTreatment(cost: number, duration: number): Treatment {
     return new Treatment(TreatmentType.RootCanalTherapy, cost, duration);
   }
 }
 
-// Repeat for other TreatmentTypes...
+const treatmentDetails = [
+  { type: new CleaningsFactory(), cost: 1000, duration: 30 },
+  { type: new WhiteningFactory(), cost: 2000, duration: 60 },
+  { type: new FillingFactory(), cost: 1500, duration: 45 },
+  { type: new NerveFillingFactory(), cost: 2500, duration: 60 },
+  { type: new RootCanalTherapyFactory(), cost: 3500, duration: 90 },
+];
 
-// Usage:
-//   const factory = new CleaningsFactory();
-//   const treatment = factory.createTreatment(100, 30);
+export const treatments = treatmentDetails.map((treatmentDetail) =>
+  treatmentDetail.type.createTreatment(
+    treatmentDetail.cost,
+    treatmentDetail.duration
+  )
+);

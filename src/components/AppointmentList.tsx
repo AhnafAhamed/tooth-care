@@ -22,6 +22,7 @@ import { useForm } from "@mantine/form";
 import { Patient } from "../services/Patient";
 import { Appointment } from "../services/Appointment";
 import { AppointmentManager } from "../services/AppointmentManager";
+import { treatments } from "../services/TreatmentFactory";
 
 type AppointmentListProps = {
   dentists: Dentist[];
@@ -66,6 +67,9 @@ export function AppointmentList({ dentists }: AppointmentListProps) {
           </Table.Td>
           <Table.Td>
             <Group gap={0} justify="flex-end">
+              <Badge color="green" variant="light">
+                Accept Payment
+              </Badge>
               <ActionIcon variant="subtle" color="gray">
                 <IconPencil
                   style={{ width: rem(16), height: rem(16) }}
@@ -94,6 +98,7 @@ export function AppointmentList({ dentists }: AppointmentListProps) {
       patientNIC: "",
       patientRegistrationFee: false,
       appointmentTime: "",
+      treatment: treatments[0],
     },
   });
 
@@ -159,6 +164,10 @@ export function AppointmentList({ dentists }: AppointmentListProps) {
     });
   }, [dentists]);
 
+  useEffect(() => {
+    console.log(appointmentForm.values);
+  }, [appointmentForm.values]);
+
   return (
     <div>
       <Flex justify="space-between" align="flex-end" mb={60} mt={48}>
@@ -215,6 +224,23 @@ export function AppointmentList({ dentists }: AppointmentListProps) {
               data={dentists.map((dentist) => ({
                 value: dentist.name,
                 label: dentist.name,
+              }))}
+            />
+            <NativeSelect
+              label="Select Treatment"
+              onChange={(event) => {
+                treatments.find((treatment) => {
+                  if (treatment.name === event.currentTarget.value) {
+                    appointmentForm.setValues({
+                      ...appointmentForm.values,
+                      treatment: treatment,
+                    });
+                  }
+                });
+              }}
+              data={treatments.map((treatment) => ({
+                value: treatment.name,
+                label: treatment.name,
               }))}
             />
             <Text mt={16} fw={500} size="sm">

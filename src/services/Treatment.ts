@@ -1,4 +1,4 @@
-enum TreatmentType {
+export enum TreatmentType {
   Cleanings = "Cleanings",
   Whitening = "Whitening",
   Filling = "Filling",

@@ -167,7 +167,6 @@ export function AppointmentList({ dentists }: AppointmentListProps) {
           onChange={handleFilterByAppointmentDate}
           label="Filter by date"
           placeholder="Enter date"
-          defaultValue={new Date()}
           clearable
         />
         <TextInput

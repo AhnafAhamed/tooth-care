@@ -1,4 +1,5 @@
 import { Appointment } from "./Appointment";
+import { DateValue } from "@mantine/dates";
 export class AppointmentManager {
   private static instance: AppointmentManager;
   private appointments: Map<number, Appointment> = new Map();
@@ -18,6 +19,18 @@ export class AppointmentManager {
 
   public getAppointmentById(id: number): Appointment | undefined {
     return this.appointments.get(id);
+  }
+
+  public getAppointmentByDate(date: DateValue): Appointment[] | undefined {
+    if (!date) return;
+    return Array.from(this.appointments.values()).filter((appointment) => {
+      const appointmentDate = new Date(appointment.time);
+      return (
+        appointmentDate.getFullYear() === date.getFullYear() &&
+        appointmentDate.getMonth() === date.getMonth() &&
+        appointmentDate.getDate() === date.getDate()
+      );
+    });
   }
 
   public removeAppointment(id: number): void {

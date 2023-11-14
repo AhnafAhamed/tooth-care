@@ -146,11 +146,9 @@ export function AppointmentList({ dentists }: AppointmentListProps) {
   const handleFilterByAppointmentId = (e: ChangeEvent<HTMLInputElement>) => {
     console.log(appointmentManager.getAllAppointments());
     const appointmentId: number = parseInt(e.target.value);
-    const filteredAppointments = appointmentManager
-      .getAllAppointments()
-      .filter((appointment) => appointment.getId() === appointmentId);
-    if (filteredAppointments.length > 0) {
-      setAppointments(filteredAppointments);
+    const appointment = appointmentManager.getAppointmentById(appointmentId);
+    if (appointment) {
+      setAppointments([appointment]);
     } else {
       setAppointments(appointmentManager.getAllAppointments());
     }
@@ -158,16 +156,9 @@ export function AppointmentList({ dentists }: AppointmentListProps) {
 
   const handleFilterByAppointmentDate = (value: DateValue) => {
     if (value) {
-      const filteredAppointments = appointmentManager
-        .getAllAppointments()
-        .filter((appointment) => {
-          const appointmentDate = new Date(appointment.time);
-          return (
-            appointmentDate.getFullYear() === value.getFullYear() &&
-            appointmentDate.getMonth() === value.getMonth() &&
-            appointmentDate.getDate() === value.getDate()
-          );
-        });
+      const filteredAppointments =
+        appointmentManager.getAppointmentByDate(value);
+      if (!filteredAppointments) return;
       setAppointments(filteredAppointments);
     } else {
       setAppointments(appointmentManager.getAllAppointments());

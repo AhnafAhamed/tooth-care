@@ -1,6 +1,16 @@
 import { Appointment } from "./Appointment";
 export class AppointmentManager {
+  private static instance: AppointmentManager;
   private appointments: Map<number, Appointment> = new Map();
+
+  private constructor() {}
+
+  public static getInstance(): AppointmentManager {
+    if (!AppointmentManager.instance) {
+      AppointmentManager.instance = new AppointmentManager();
+    }
+    return AppointmentManager.instance;
+  }
 
   public addAppointment(appointment: Appointment): void {
     this.appointments.set(appointment.getId(), appointment);

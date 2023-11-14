@@ -31,7 +31,7 @@ type AppointmentListProps = {
   dentists: Dentist[];
 };
 
-const appointmentManager = new AppointmentManager();
+const appointmentManager = AppointmentManager.getInstance();
 
 export function AppointmentList({ dentists }: AppointmentListProps) {
   const [opened, { open, close }] = useDisclosure(false);

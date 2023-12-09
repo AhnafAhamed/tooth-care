@@ -8,6 +8,7 @@ import {
   Button,
   Modal,
   SimpleGrid,
+  Stack,
 } from "@mantine/core";
 import classes from "./Login.module.css";
 import { Receptionist } from "../services/Receptionist";
@@ -42,13 +43,27 @@ export function Auth({ getReceptionist }: AuthProps) {
   const registerForm = useForm({
     initialValues: {
       email: "",
+      phone: "",
       receptionistId: 0,
       password: "",
       name: "",
       age: "",
       address: "",
-      phone: "",
       nic: "",
+    },
+    validateInputOnBlur: true,
+    validate: {
+      name: (value) =>
+        value.length < 3 ? "Name must have at least 3 letters" : null,
+      age: (value) =>
+        parseInt(value) < 18 ? "You must be at least 18 to register" : null,
+      phone: (value) =>
+        value.length < 10 ? "Phone number must have at least 10 digits" : null,
+      nic: (value) =>
+        value.length < 10 ? "NIC must have at least 10 digits" : null,
+      password: (value) =>
+        value.length < 6 ? "Password must have at least 6 characters" : null,
+      address: (value) => (value.length < 1 ? "Address cannot be empty" : null),
     },
   });
 
@@ -153,6 +168,7 @@ export function Auth({ getReceptionist }: AuthProps) {
             <PasswordInput
               label="Password"
               placeholder="Your password"
+              type="password"
               {...loginForm.getInputProps("password")}
               required
             />
@@ -223,12 +239,24 @@ export function Auth({ getReceptionist }: AuthProps) {
                 required
               />
             </SimpleGrid>
-            <Button fullWidth mt="xl" type="submit">
+            <Button
+              fullWidth
+              mt="xl"
+              type="submit"
+              disabled={!registerForm.isValid()}
+            >
               Register
             </Button>
           </form>
         ) : (
-          <Text>Your registration ID: {registeredReceptionistId}</Text>
+          <Stack gap={16}>
+            <Text size="lg" ta="center">
+              Registration Successful!
+            </Text>
+            <Text size="md" ta="center">
+              Your registration ID: <b>{registeredReceptionistId}</b>
+            </Text>
+          </Stack>
         )}
       </Modal>
     </>

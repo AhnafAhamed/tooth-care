@@ -27,5 +27,9 @@ export class ReceptionistManager {
     return this.registeredReceptionists.find((r) => r.id === receptionistId);
   }
 
+  generateReceptionistId(): number {
+    return Math.floor(Math.random() * 9000) + 1000;
+  }
+
   // Other methods for managing receptionists
 }

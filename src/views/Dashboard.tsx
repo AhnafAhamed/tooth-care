@@ -80,9 +80,18 @@ export function Dashboard({ receptionist }: DashboardProps) {
       navigate("/auth");
     }
     dentistForm.setValues({
+      ...dentistForm.values,
       dentistId: dentistManager.generateDentistId(),
     });
   }, []);
+
+  useEffect(() => {
+    if (!opened) return;
+    dentistForm.setValues({
+      ...dentistForm.values,
+      dentistId: dentistManager.generateDentistId(),
+    });
+  }, [opened]);
 
   return (
     <DashboardLayout>

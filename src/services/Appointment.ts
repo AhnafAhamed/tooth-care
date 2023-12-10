@@ -5,7 +5,7 @@ import { Treatment } from "./Treatment";
 export class Appointment {
   private static lastId = 0;
   private id: number;
-  private treatment: Treatment | null = null;
+  private treatments: Treatment[] | null = null;
   private isRegistrationPaid: boolean = false;
   private isTreatmentPaid: boolean = false;
   time: string;
@@ -51,11 +51,18 @@ export class Appointment {
     return this.patient.phone;
   }
 
-  public setTreatment(treatment: Treatment): void {
-    this.treatment = treatment;
+  public setTreatment(treatments: Treatment[]): void {
+    this.treatments = treatments;
   }
 
-  public getTreatment(): Treatment | null {
-    return this.treatment;
+  public getTreatments(): Treatment[] | null {
+    return this.treatments;
+  }
+
+  public getAppointmentFee(): number {
+    if (!this.treatments) return 0;
+    return this.treatments.reduce((acc, treatment) => {
+      return acc + treatment.cost;
+    }, 0);
   }
 }

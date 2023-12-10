@@ -15,6 +15,7 @@ import {
   Title,
   Center,
   Stack,
+  MultiSelect,
 } from "@mantine/core";
 import { DateInput, DateTimePicker, DateValue } from "@mantine/dates";
 import { IconPencil, IconTrash } from "@tabler/icons-react";
@@ -39,6 +40,8 @@ export function AppointmentList({ dentists }: AppointmentListProps) {
     useDisclosure(false);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment>();
+  const [treatmentNames, setTreatmentNames] = useState<string[]>([]);
+  const [editMode, setEditMode] = useState(false);
 
   const rows =
     appointments.length === 0 ? (
@@ -91,6 +94,7 @@ export function AppointmentList({ dentists }: AppointmentListProps) {
                 <IconPencil
                   style={{ width: rem(16), height: rem(16) }}
                   stroke={1.5}
+                  onClick={() => handleEditClick(appointment.getId())}
                 />
               </ActionIcon>
               <ActionIcon variant="subtle" color="red">
@@ -115,7 +119,7 @@ export function AppointmentList({ dentists }: AppointmentListProps) {
       patientNIC: "",
       patientRegistrationFee: false,
       appointmentTime: "",
-      treatment: treatments[0],
+      treatments: [treatments[0]],
     },
   });
 
@@ -135,12 +139,30 @@ export function AppointmentList({ dentists }: AppointmentListProps) {
       appointmentForm.values.dentist
     );
     appointment.payRegistration();
-    appointment.setTreatment(appointmentForm.values.treatment);
+    appointment.setTreatment(appointmentForm.values.treatments);
     appointmentManager.addAppointment(appointment);
 
     setAppointments(appointmentManager.getAllAppointments());
 
     console.log(appointmentManager.getAllAppointments());
+  };
+
+  const editAppointment = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    appointmentManager.editAppointment(
+      selectedAppointment?.getId() || 0,
+      appointmentForm.values.appointmentTime,
+      appointmentForm.values.patientName,
+      parseInt(appointmentForm.values.patientAge),
+      appointmentForm.values.patientAddress,
+      parseInt(appointmentForm.values.patientPhone),
+      appointmentForm.values.patientNIC,
+      appointmentForm.values.dentist,
+      appointmentForm.values.treatments
+    );
+
+    setAppointments(appointmentManager.getAllAppointments());
   };
 
   const handleFilterByAppointmentId = (e: ChangeEvent<HTMLInputElement>) => {
@@ -170,9 +192,31 @@ export function AppointmentList({ dentists }: AppointmentListProps) {
       appointmentManager.getAppointmentById(appointmentId)
     );
     openInvoiceModal();
-    console.log(appointmentId);
-    // appointmentManager.payAppointment(appointmentId);
-    // setAppointments(appointmentManager.getAllAppointments());
+  };
+
+  const handleEditClick = (appointmentId: number) => {
+    setSelectedAppointment(
+      appointmentManager.getAppointmentById(appointmentId)
+    );
+    setEditMode(true);
+
+    const selectedAppointment =
+      appointmentManager.getAppointmentById(appointmentId);
+
+    if (!selectedAppointment) return;
+    appointmentForm.setValues({
+      ...appointmentForm.values,
+      dentist: selectedAppointment.dentist,
+      patientName: selectedAppointment.patient.name,
+      patientAge: selectedAppointment.patient.age.toString(),
+      patientAddress: selectedAppointment.patient.address,
+      patientPhone: selectedAppointment.patient.phone.toString(),
+      patientNIC: selectedAppointment.patient.NIC,
+      patientRegistrationFee: selectedAppointment.getIsRegistrationPaid(),
+      appointmentTime: selectedAppointment.time,
+      treatments: selectedAppointment.getTreatments() || [],
+    });
+    open();
   };
 
   useEffect(() => {
@@ -183,8 +227,19 @@ export function AppointmentList({ dentists }: AppointmentListProps) {
   }, [dentists]);
 
   useEffect(() => {
-    console.log(appointmentForm.values);
-  }, [appointmentForm.values]);
+    const uniqueTreatmentNames = new Set(treatmentNames);
+
+    treatments.forEach((treatment) => {
+      uniqueTreatmentNames.add(treatment.name);
+    });
+
+    setTreatmentNames([...uniqueTreatmentNames]);
+  }, [treatments]);
+
+  useEffect(() => {
+    if (opened) return;
+    setEditMode(false);
+  }, [opened]);
 
   return (
     <div>
@@ -221,12 +276,12 @@ export function AppointmentList({ dentists }: AppointmentListProps) {
       <Modal
         opened={opened}
         onClose={close}
-        title="Make Appointment"
+        title={editMode ? "Edit Appointment" : "Make Appointment"}
         centered
         size="xl"
       >
         {appointmentForm.values.dentist ? (
-          <form onSubmit={addAppointment}>
+          <form onSubmit={editMode ? editAppointment : addAppointment}>
             <NativeSelect
               label="Select Dentist"
               onChange={(event) => {
@@ -244,22 +299,24 @@ export function AppointmentList({ dentists }: AppointmentListProps) {
                 label: dentist.name,
               }))}
             />
-            <NativeSelect
-              label="Select Treatment"
+            <MultiSelect
+              data={treatmentNames}
+              label="Select Treatments"
+              placeholder="Select Treatments"
+              value={appointmentForm.values.treatments.map(
+                (treatment) => treatment.name
+              )}
               onChange={(event) => {
-                treatments.find((treatment) => {
-                  if (treatment.name === event.currentTarget.value) {
-                    appointmentForm.setValues({
-                      ...appointmentForm.values,
-                      treatment: treatment,
-                    });
-                  }
-                });
+                const selectedTreatments = treatments.filter((treatment) =>
+                  event.includes(treatment.name)
+                );
+                if (selectedTreatments.length > 0) {
+                  appointmentForm.setValues((values) => ({
+                    ...values,
+                    treatments: selectedTreatments,
+                  }));
+                }
               }}
-              data={treatments.map((treatment) => ({
-                value: treatment.name,
-                label: treatment.name,
-              }))}
             />
             <Text mt={16} fw={500} size="sm">
               Availability
@@ -333,7 +390,7 @@ export function AppointmentList({ dentists }: AppointmentListProps) {
               label="Regestration Fee of 1000/= received"
             />
             <Button fullWidth mt="xl" type="submit">
-              Make Appointment
+              {editMode ? "Edit Appointment" : "Make Appointment"}
             </Button>
           </form>
         ) : (
@@ -374,10 +431,22 @@ export function AppointmentList({ dentists }: AppointmentListProps) {
                     <Table.Td>{selectedAppointment?.getPatientName()}</Table.Td>
                     <Table.Td>{selectedAppointment?.getDentistName()}</Table.Td>
                     <Table.Td>
-                      {selectedAppointment?.getTreatment()?.name}
+                      {selectedAppointment.getTreatments()?.map((treatment) => {
+                        return (
+                          <Text>
+                            {treatment.name} <br />
+                          </Text>
+                        );
+                      })}
                     </Table.Td>
                     <Table.Td>
-                      {selectedAppointment?.getTreatment()?.cost}/=
+                      {selectedAppointment.getTreatments()?.map((treatment) => {
+                        return (
+                          <Text>
+                            - {treatment.cost} /= <br />
+                          </Text>
+                        );
+                      })}
                     </Table.Td>
                   </Table.Tr>
                   <Table.Tr>
@@ -388,7 +457,7 @@ export function AppointmentList({ dentists }: AppointmentListProps) {
                     </Table.Td>
                     <Table.Td colSpan={2}>
                       <Text size="xl" fw={700} ta="right">
-                        {selectedAppointment?.getTreatment()?.cost}/=
+                        {selectedAppointment.getAppointmentFee()}
                       </Text>
                     </Table.Td>
                   </Table.Tr>

@@ -1,5 +1,7 @@
 import { Appointment } from "./Appointment";
 import { DateValue } from "@mantine/dates";
+import { Dentist } from "./Dentist";
+import { Treatment } from "./Treatment";
 export class AppointmentManager {
   private static instance: AppointmentManager;
   private appointments: Map<number, Appointment> = new Map();
@@ -15,6 +17,33 @@ export class AppointmentManager {
 
   public addAppointment(appointment: Appointment): void {
     this.appointments.set(appointment.getId(), appointment);
+  }
+
+  public editAppointment(
+    appointmentId: number,
+    time: string,
+    patientName: string,
+    patientAge: number,
+    patientAddress: string,
+    patientPhone: number,
+    patientNIC: string,
+    dentist: Dentist,
+    treatments: Treatment[]
+  ): void {
+    const existingAppointment = this.appointments.get(appointmentId);
+
+    if (existingAppointment) {
+      existingAppointment.patient.name = patientName;
+      existingAppointment.patient.phone = patientPhone;
+      existingAppointment.patient.age = patientAge;
+      existingAppointment.patient.NIC = patientNIC;
+      existingAppointment.patient.address = patientAddress;
+
+      existingAppointment.time = time;
+      existingAppointment.dentist = dentist;
+
+      existingAppointment.setTreatment(treatments);
+    }
   }
 
   public getAppointmentById(id: number): Appointment | undefined {

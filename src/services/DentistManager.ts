@@ -14,4 +14,8 @@ export class DentistManager {
   getDentistById(dentistId: number): Dentist | undefined {
     return this.registeredDentists.find((r) => r.id === dentistId);
   }
+
+  generateDentistId(): number {
+    return Math.floor(Math.random() * 9000) + 1000;
+  }
 }

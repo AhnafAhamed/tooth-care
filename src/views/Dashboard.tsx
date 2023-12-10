@@ -32,7 +32,7 @@ export function Dashboard({ receptionist }: DashboardProps) {
 
   const dentistForm = useForm({
     initialValues: {
-      dentistId: "",
+      dentistId: 0,
       slmcId: "",
       name: "",
       age: "",
@@ -49,7 +49,7 @@ export function Dashboard({ receptionist }: DashboardProps) {
     if (!dentistForm.isValid()) return;
 
     const newDentist = new Dentist(
-      parseInt(dentistForm.values.dentistId),
+      dentistForm.values.dentistId,
       dentistForm.values.name,
       parseInt(dentistForm.values.age),
       dentistForm.values.address,
@@ -79,6 +79,9 @@ export function Dashboard({ receptionist }: DashboardProps) {
     if (!receptionist) {
       navigate("/auth");
     }
+    dentistForm.setValues({
+      dentistId: dentistManager.generateDentistId(),
+    });
   }, []);
 
   return (
@@ -103,6 +106,7 @@ export function Dashboard({ receptionist }: DashboardProps) {
               label="Dentist ID"
               type="number"
               placeholder="Enter ID"
+              disabled
               {...dentistForm.getInputProps("dentistId")}
               required
             />
